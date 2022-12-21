@@ -1,7 +1,43 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int, ID, Float } from '@nestjs/graphql';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, OneToMany } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { ListItem } from '../../list-item/entities/list-item.entity';
 
+@Entity({ name: 'items'})
 @ObjectType()
 export class Item {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+  
+  
+  @PrimaryGeneratedColumn('uuid')
+  @Field( () => ID )
+  id:string;
+  
+  @Column()
+  @Field( () => String)
+  name:string;
+
+  // @Column()
+  // @Field( () => Float)
+  // quantity:number;
+
+  @Column({ nullable: true })
+  @Field( () => String, { nullable:true })
+  quantityUnits?:string;
+
+  @ManyToOne(
+    ()=>User,
+    (user)=>user.items,
+    { nullable:false }
+  )
+  @Index('userId-index')
+  @Field( () => User )
+  user:User;
+
+  @OneToMany(
+    ()=>ListItem,
+    (listItem)=>listItem.item,
+    { lazy:true }
+  )
+  // @Field( () => [ListItem] )
+  listItem:ListItem[]
 }

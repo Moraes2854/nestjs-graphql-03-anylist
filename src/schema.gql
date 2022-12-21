@@ -2,29 +2,133 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ListItem {
+  id: ID!
+  quantity: Float!
+  completed: Boolean!
+  list: List!
+  item: Item!
+}
+
+type List {
+  id: ID!
+  name: String!
+  user: User!
+  items(offset: Int = 0, limit: Int = 5, search: String): [ListItem!]!
+  countListItems: Int!
+}
+
+type User {
+  id: ID!
+  fullName: String!
+  email: String!
+  roles: [ValidRoles!]
+  isActive: Boolean!
+  lastUpdateBy: User
+  itemCount: Int!
+  items(offset: Int = 0, limit: Int = 5, search: String): [Item!]!
+  listCount: Int!
+  lists(offset: Int = 0, limit: Int = 5, search: String): [List!]!
+}
+
+enum ValidRoles {
+  admin
+  user
+  superUser
+}
+
 type Item {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  id: ID!
+  name: String!
+  quantityUnits: String
+  user: User!
+}
+
+type AuthResponse {
+  token: String!
+  user: User!
 }
 
 type Query {
-  items: [Item!]!
-  item(id: Int!): Item!
+  revalidate: AuthResponse!
+  users(roles: [ValidRoles!] = [], offset: Int = 0, limit: Int = 5, search: String): [User!]!
+  user(id: ID!): User!
+  findAllItems(offset: Int = 0, limit: Int = 5, search: String): [Item!]!
+  findOneItem(id: String!): Item!
+  lists(offset: Int = 0, limit: Int = 5, search: String): [List!]!
+  list(id: Int!): List!
+  listItem(id: String!): ListItem!
 }
 
 type Mutation {
+  signup(signupInput: SignupInput!): AuthResponse!
+  login(loginInput: LoginInput!): AuthResponse!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  blockUser(id: ID!): User!
   createItem(createItemInput: CreateItemInput!): Item!
   updateItem(updateItemInput: UpdateItemInput!): Item!
-  removeItem(id: Int!): Item!
+  removeItem(id: ID!): Boolean!
+  createList(createListInput: CreateListInput!): List!
+  updateList(updateListInput: UpdateListInput!): List!
+  removeList(id: Int!): List!
+  createListItem(createListItemInput: CreateListItemInput!): ListItem!
+  updateListItem(updateListItemInput: UpdateListItemInput!): ListItem!
+
+  """Reconstruye la base de datos"""
+  executeSeed: Boolean!
+}
+
+input SignupInput {
+  email: String!
+  fullName: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input UpdateUserInput {
+  email: String
+  fullName: String
+  password: String
+  id: ID!
+  roles: [ValidRoles!]
+  isActive: Boolean
 }
 
 input CreateItemInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  name: String!
+  quantityUnits: String
 }
 
 input UpdateItemInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
+  name: String
+  quantityUnits: String
+  id: ID!
+}
+
+input CreateListInput {
+  name: String!
+}
+
+input UpdateListInput {
+  name: String
+  id: ID!
+}
+
+input CreateListItemInput {
+  quantity: Float = 0
+  completed: Boolean = false
+  listId: ID!
+  itemId: ID!
+}
+
+input UpdateListItemInput {
+  quantity: Float = 0
+  completed: Boolean = false
+  listId: ID
+  itemId: ID
+  id: ID!
 }
